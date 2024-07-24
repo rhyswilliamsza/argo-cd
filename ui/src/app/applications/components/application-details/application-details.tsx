@@ -886,7 +886,7 @@ export class ApplicationDetails extends React.Component<RouteComponentProps<{app
         const refreshing = app.metadata.annotations && app.metadata.annotations[appModels.AnnotationRefreshKey];
         const fullName = AppUtils.nodeKey({group: 'argoproj.io', kind: app.kind, name: app.metadata.name, namespace: app.metadata.namespace});
         const ActionMenuItem = (prop: {actionLabel: string}) => <span className={needOverlapLabelOnNarrowScreen ? 'show-for-large' : ''}>{prop.actionLabel}</span>;
-        return [
+        const menuItems = [
             {
                 iconClassName: 'fa fa-info-circle',
                 title: <ActionMenuItem actionLabel='Details' />,
@@ -948,6 +948,21 @@ export class ApplicationDetails extends React.Component<RouteComponentProps<{app
                 }
             }
         ];
+
+        // If our Application includes an instance label, i.e. likely representing a base-app-of-apps tree,
+        // add a 'Parent' link to the application menu.
+        const parentApp: string = app?.metadata?.labels?.['argocd.argoproj.io/instance']
+        if (parentApp) {
+            menuItems.push({
+                iconClassName: 'fa fa-level-up',
+                title: <ActionMenuItem actionLabel="Parent" />,
+                action: () => {
+                    this.appContext.apis.navigation.goto(`/applications/${app.metadata.namespace}/${parentApp}`)
+                },
+                disabled: !app.status.operationState
+            })
+        }
+        return menuItems;
     }
 
     private filterTreeNode(node: ResourceTreeNode, filterInput: FilterInput): boolean {
