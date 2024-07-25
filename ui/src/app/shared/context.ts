@@ -14,4 +14,4 @@ export interface ContextApis {
 export const Context = React.createContext<ContextApis & {history: History}>(null);
 export const {Provider, Consumer} = Context;
 
-export const AuthSettingsCtx = React.createContext<models.AuthSettings>(null);
+export const ClusterSettingsCtx = React.createContext<models.ClusterSettings>(null);

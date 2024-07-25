@@ -12,7 +12,7 @@ import {
     processDiscoveryResponse,
     validateAuthResponse
 } from 'oauth4webapi';
-import {AuthSettings} from '../../shared/models';
+import {ClusterSettings} from '../../shared/models';
 
 export const discoverAuthServer = (issuerURL: URL): Promise<AuthorizationServer> => discoveryRequest(issuerURL).then(res => processDiscoveryResponse(issuerURL, res));
 
@@ -37,7 +37,7 @@ export class PKCELoginError extends Error {
     }
 }
 
-const validateAndGetOIDCForPKCE = async (oidcConfig: AuthSettings['oidcConfig']) => {
+const validateAndGetOIDCForPKCE = async (oidcConfig: ClusterSettings['oidcConfig']) => {
     if (!oidcConfig) {
         throw new PKCELoginError('No OIDC Config found');
     }
@@ -67,7 +67,7 @@ const validateAndGetOIDCForPKCE = async (oidcConfig: AuthSettings['oidcConfig'])
     };
 };
 
-export const pkceLogin = async (oidcConfig: AuthSettings['oidcConfig'], redirectURI: string) => {
+export const pkceLogin = async (oidcConfig: ClusterSettings['oidcConfig'], redirectURI: string) => {
     const {authorizationServer} = await validateAndGetOIDCForPKCE(oidcConfig);
 
     if (!authorizationServer.authorization_endpoint) {
@@ -92,7 +92,7 @@ export const pkceLogin = async (oidcConfig: AuthSettings['oidcConfig'], redirect
     window.location.replace(authorizationServerConsentScreen.toString());
 };
 
-export const pkceCallback = async (queryParams: string, oidcConfig: AuthSettings['oidcConfig'], redirectURI: string) => {
+export const pkceCallback = async (queryParams: string, oidcConfig: ClusterSettings['oidcConfig'], redirectURI: string) => {
     const codeVerifier = PKCECodeVerifier.get();
 
     if (!codeVerifier) {

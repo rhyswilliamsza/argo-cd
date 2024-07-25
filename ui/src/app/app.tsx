@@ -11,13 +11,13 @@ import settings from './settings';
 import {Layout} from './shared/components/layout/layout';
 import {Page} from './shared/components/page/page';
 import {VersionPanel} from './shared/components/version-info/version-info-panel';
-import {AuthSettingsCtx, Provider} from './shared/context';
+import {ClusterSettingsCtx, Provider} from './shared/context';
 import {services} from './shared/services';
 import requests from './shared/services/requests';
 import {hashCode} from './shared/utils';
 import {Banner} from './ui-banner/ui-banner';
 import userInfo from './user-info';
-import {AuthSettings} from './shared/models';
+import {ClusterSettings} from './shared/models';
 import {PKCEVerification} from './login/components/pkce-verify';
 
 services.viewPreferences.init();
@@ -75,9 +75,9 @@ const versionLoader = services.version.version();
 async function isExpiredSSO() {
     try {
         const {iss} = await services.users.get();
-        const authSettings = await services.authService.settings();
+        const clusterSettings = await services.clusterSettingsService.settings();
         if (iss && iss !== 'argocd') {
-            return ((authSettings.dexConfig && authSettings.dexConfig.connectors) || []).length > 0 || authSettings.oidcConfig;
+            return ((clusterSettings.dexConfig && clusterSettings.dexConfig.connectors) || []).length > 0 || clusterSettings.oidcConfig;
         }
     } catch {
         return false;
@@ -109,7 +109,7 @@ requests.onError.subscribe(async err => {
 
 export class App extends React.Component<
     {},
-    {popupProps: PopupProps; showVersionPanel: boolean; error: Error; navItems: NavItem[]; routes: Routes; extensionsLoaded: boolean; authSettings: AuthSettings}
+    {popupProps: PopupProps; showVersionPanel: boolean; error: Error; navItems: NavItem[]; routes: Routes; extensionsLoaded: boolean; clusterSettings: ClusterSettings}
 > {
     public static childContextTypes = {
         history: PropTypes.object,
@@ -128,7 +128,7 @@ export class App extends React.Component<
 
     constructor(props: {}) {
         super(props);
-        this.state = {popupProps: null, error: null, showVersionPanel: false, navItems: [], routes: null, extensionsLoaded: false, authSettings: null};
+        this.state = {popupProps: null, error: null, showVersionPanel: false, navItems: [], routes: null, extensionsLoaded: false, clusterSettings: null};
         this.popupManager = new PopupManager();
         this.notificationsManager = new NotificationsManager();
         this.navigationManager = new NavigationManager(history);
@@ -138,8 +138,8 @@ export class App extends React.Component<
 
     public async componentDidMount() {
         this.popupManager.popupProps.subscribe(popupProps => this.setState({popupProps}));
-        const authSettings = await services.authService.settings();
-        const {trackingID, anonymizeUsers} = authSettings.googleAnalytics || {trackingID: '', anonymizeUsers: true};
+        const clusterSettings = await services.clusterSettingsService.settings();
+        const {trackingID, anonymizeUsers} = clusterSettings.googleAnalytics || {trackingID: '', anonymizeUsers: true};
         const {loggedIn, username} = await services.users.get();
         if (trackingID) {
             const ga = await import('react-ga');
@@ -154,9 +154,9 @@ export class App extends React.Component<
             trackPageView();
             history.listen(trackPageView);
         }
-        if (authSettings.uiCssURL) {
+        if (clusterSettings.uiCssURL) {
             const link = document.createElement('link');
-            link.href = authSettings.uiCssURL;
+            link.href = clusterSettings.uiCssURL;
             link.rel = 'stylesheet';
             link.type = 'text/css';
             document.head.appendChild(link);
@@ -186,7 +186,7 @@ export class App extends React.Component<
             };
         }
 
-        this.setState({...this.state, navItems: extendedNavItems, routes: extendedRoutes, extensionsLoaded: true, authSettings});
+        this.setState({...this.state, navItems: extendedNavItems, routes: extendedRoutes, extensionsLoaded: true, clusterSettings: clusterSettings});
     }
 
     public render() {
@@ -218,7 +218,7 @@ export class App extends React.Component<
                         <DataLoader load={() => services.viewPreferences.getPreferences()}>
                             {pref => <div className={pref.theme ? 'theme-' + pref.theme : 'theme-light'}>{this.state.popupProps && <Popup {...this.state.popupProps} />}</div>}
                         </DataLoader>
-                        <AuthSettingsCtx.Provider value={this.state.authSettings}>
+                        <ClusterSettingsCtx.Provider value={this.state.clusterSettings}>
                             <Router history={history}>
                                 <Switch>
                                     <Redirect exact={true} path='/' to='/applications' />
@@ -251,7 +251,7 @@ export class App extends React.Component<
                                     {this.state.extensionsLoaded && <Redirect path='*' to='/' />}
                                 </Switch>
                             </Router>
-                        </AuthSettingsCtx.Provider>
+                        </ClusterSettingsCtx.Provider>
                     </Provider>
                 </PageContext.Provider>
                 <Notifications notifications={this.notificationsManager.notifications} />

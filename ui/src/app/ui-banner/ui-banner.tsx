@@ -53,7 +53,7 @@ export const Banner = (props: React.Props<any>) => {
     return (
         <DataLoader
             load={() =>
-                combineLatest([services.authService.settings(), services.viewPreferences.getPreferences()]).pipe(
+                combineLatest([services.clusterSettingsService.settings(), services.viewPreferences.getPreferences()]).pipe(
                     map(items => {
                         return {
                             content: items[0].uiBannerContent,

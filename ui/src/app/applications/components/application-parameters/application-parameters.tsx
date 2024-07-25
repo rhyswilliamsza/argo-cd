@@ -597,7 +597,7 @@ function gatherDetails(
             title: 'VERSION',
             view: (source.kustomize && source.kustomize.version) || <span>default</span>,
             edit: (formApi: FormApi) => (
-                <DataLoader load={() => services.authService.settings()}>
+                <DataLoader load={() => services.clusterSettingsService.settings()}>
                     {settings =>
                         ((settings.kustomizeVersions || []).length > 0 && (
                             <FormField
@@ -758,7 +758,7 @@ function gatherDetails(
             title: 'NAME',
             view: <div style={{marginTop: 15, marginBottom: 5}}>{ValueEditor(app.spec.source?.plugin?.name, null)}</div>,
             edit: (formApi: FormApi) => (
-                <DataLoader load={() => services.authService.plugins()}>
+                <DataLoader load={() => services.clusterSettingsService.plugins()}>
                     {(plugins: Plugin[]) => (
                         <FormField
                             formApi={formApi}

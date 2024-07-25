@@ -277,7 +277,7 @@ export const ResourceDetails = (props: ResourceDetailsProps) => {
                             childResources = AppUtils.findChildResources(selectedNode, tree);
                         }
 
-                        const settings = await services.authService.settings();
+                        const settings = await services.clusterSettingsService.settings();
                         const execEnabled = settings.execEnabled;
                         const logsAllowed = await services.accounts.canI('logs', 'get', application.spec.project + '/' + application.metadata.name);
                         const execAllowed = execEnabled && (await services.accounts.canI('exec', 'create', application.spec.project + '/' + application.metadata.name));

@@ -12,7 +12,7 @@ export const Help = () => {
     return (
         <DataLoader
             load={() =>
-                combineLatest([services.authService.settings()]).pipe(
+                combineLatest([services.clusterSettingsService.settings()]).pipe(
                     map(items => {
                         return {
                             binaryUrls: items[0].help.binaryUrls || {}

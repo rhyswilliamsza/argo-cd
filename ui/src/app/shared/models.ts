@@ -456,7 +456,9 @@ export interface Plugin {
     name: string;
 }
 
-export interface AuthSettings {
+export interface ClusterSettings {
+    appLabelKey: string,
+    controllerNamespace: string,
     url: string;
     statusBadgeEnabled: boolean;
     statusBadgeRootUrl: string;
