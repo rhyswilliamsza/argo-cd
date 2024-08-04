@@ -551,7 +551,7 @@ function getActionItems(
         ).pipe(map(res => ([] as MenuItem[]).concat(...res)));
     }
 
-    const execAction = services.clusterSettingsService
+    const execAction = services.authService
         .settings()
         .then(async settings => {
             const execAllowed = settings.execEnabled && (await services.accounts.canI('exec', 'create', application.spec.project + '/' + application.metadata.name));

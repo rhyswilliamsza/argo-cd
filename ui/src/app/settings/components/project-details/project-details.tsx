@@ -6,7 +6,7 @@ import {FormApi, Text} from 'react-form';
 import {RouteComponentProps} from 'react-router';
 
 import {BadgePanel, CheckboxField, DataLoader, EditablePanel, ErrorNotification, MapInputField, Page, Query} from '../../../shared/components';
-import {AppContext, Consumer, ClusterSettingsCtx} from '../../../shared/context';
+import {AppContext, Consumer, AuthSettingsCtx} from '../../../shared/context';
 import {GroupKind, Groups, Project, DetailedProjectsResponse, ProjectSpec, ResourceKinds} from '../../../shared/models';
 import {CreateJWTTokenParams, DeleteJWTTokenParams, ProjectRoleParams, services} from '../../../shared/services';
 
@@ -659,7 +659,7 @@ export class ProjectDetails extends React.Component<RouteComponentProps<{name: s
                     }
                     items={[]}
                 />
-                <ClusterSettingsCtx.Consumer>
+                <AuthSettingsCtx.Consumer>
                     {authCtx =>
                         authCtx.appsInAnyNamespaceEnabled && (
                             <EditablePanel
@@ -703,7 +703,7 @@ export class ProjectDetails extends React.Component<RouteComponentProps<{name: s
                             />
                         )
                     }
-                </ClusterSettingsCtx.Consumer>
+                </AuthSettingsCtx.Consumer>
                 <EditablePanel
                     save={item => this.saveProject(item)}
                     values={proj}

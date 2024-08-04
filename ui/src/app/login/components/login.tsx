@@ -5,7 +5,7 @@ import {Form, Text} from 'react-form';
 import {RouteComponentProps} from 'react-router';
 
 import {AppContext} from '../../shared/context';
-import {ClusterSettings} from '../../shared/models';
+import {AuthSettings} from '../../shared/models';
 import {services} from '../../shared/services';
 import {getPKCERedirectURI, pkceLogin} from './utils';
 
@@ -17,7 +17,7 @@ export interface LoginForm {
 }
 
 interface State {
-    clusterSettings: ClusterSettings;
+    authSettings: AuthSettings;
     loginError: string;
     loginInProgress: boolean;
     returnUrl: string;
@@ -38,18 +38,18 @@ export class Login extends React.Component<RouteComponentProps<{}>, State> {
 
     constructor(props: RouteComponentProps<{}>) {
         super(props);
-        this.state = {clusterSettings: null, loginError: null, returnUrl: null, hasSsoLoginError: false, loginInProgress: false};
+        this.state = {authSettings: null, loginError: null, returnUrl: null, hasSsoLoginError: false, loginInProgress: false};
     }
 
     public async componentDidMount() {
         this.setState({
-            clusterSettings: await services.clusterSettingsService.settings()
+            authSettings: await services.authService.settings()
         });
     }
 
     public render() {
-        const clusterSettings = this.state.clusterSettings;
-        const ssoConfigured = clusterSettings && ((clusterSettings.dexConfig && (clusterSettings.dexConfig.connectors || []).length > 0) || clusterSettings.oidcConfig);
+        const authSettings = this.state.authSettings;
+        const ssoConfigured = authSettings && ((authSettings.dexConfig && (authSettings.dexConfig.connectors || []).length > 0) || authSettings.oidcConfig);
         return (
             <div className='login'>
                 <div className='login__content show-for-medium'>
@@ -63,10 +63,10 @@ export class Login extends React.Component<RouteComponentProps<{}>, State> {
                     {ssoConfigured && (
                         <div className='login__box_saml width-control'>
                             <a
-                                {...(clusterSettings?.oidcConfig?.enablePKCEAuthentication
+                                {...(authSettings?.oidcConfig?.enablePKCEAuthentication
                                     ? {
                                           onClick: async () => {
-                                              pkceLogin(clusterSettings.oidcConfig, getPKCERedirectURI().toString()).catch(err => {
+                                              pkceLogin(authSettings.oidcConfig, getPKCERedirectURI().toString()).catch(err => {
                                                   this.appContext.apis.notifications.show({
                                                       type: NotificationType.Error,
                                                       content: err?.message || JSON.stringify(err)
@@ -76,21 +76,21 @@ export class Login extends React.Component<RouteComponentProps<{}>, State> {
                                       }
                                     : {href: `auth/login?return_url=${encodeURIComponent(this.state.returnUrl)}`})}>
                                 <button className='argo-button argo-button--base argo-button--full-width argo-button--xlg'>
-                                    {(clusterSettings.oidcConfig && <span>Log in via {clusterSettings.oidcConfig.name}</span>) ||
-                                        (clusterSettings.dexConfig.connectors.length === 1 && <span>Log in via {clusterSettings.dexConfig.connectors[0].name}</span>) || (
+                                    {(authSettings.oidcConfig && <span>Log in via {authSettings.oidcConfig.name}</span>) ||
+                                        (authSettings.dexConfig.connectors.length === 1 && <span>Log in via {authSettings.dexConfig.connectors[0].name}</span>) || (
                                             <span>SSO Login</span>
                                         )}
                                 </button>
                             </a>
                             {this.state.hasSsoLoginError && <div className='argo-form-row__error-msg'>Login failed.</div>}
-                            {clusterSettings && !clusterSettings.userLoginsDisabled && (
+                            {authSettings && !authSettings.userLoginsDisabled && (
                                 <div className='login__saml-separator'>
                                     <span>or</span>
                                 </div>
                             )}
                         </div>
                     )}
-                    {clusterSettings && !clusterSettings.userLoginsDisabled && (
+                    {authSettings && !authSettings.userLoginsDisabled && (
                         <Form
                             onSubmit={(params: LoginForm) => this.login(params.username, params.password, this.state.returnUrl)}
                             validateError={(params: LoginForm) => ({
@@ -115,7 +115,7 @@ export class Login extends React.Component<RouteComponentProps<{}>, State> {
                             )}
                         </Form>
                     )}
-                    {clusterSettings && clusterSettings.userLoginsDisabled && !ssoConfigured && (
+                    {authSettings && authSettings.userLoginsDisabled && !ssoConfigured && (
                         <div className='argo-form-row__error-msg'>Login is disabled. Please contact your system administrator.</div>
                     )}
                     <div className='login__footer'>

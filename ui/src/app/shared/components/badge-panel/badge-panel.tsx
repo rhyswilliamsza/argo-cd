@@ -71,7 +71,7 @@ export const BadgePanel = ({app, project, appNamespace, nsEnabled}: {app?: strin
     }
 
     return (
-        <DataLoader load={() => services.clusterSettingsService.settings()}>
+        <DataLoader load={() => services.authService.settings()}>
             {settings => (settings.statusBadgeEnabled && <div>{badgeContent(settings.statusBadgeRootUrl)}</div>) || null}
         </DataLoader>
     );

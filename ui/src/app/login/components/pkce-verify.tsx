@@ -11,9 +11,9 @@ export const PKCEVerification = (props: RouteComponentProps<any>) => {
 
     useEffect(() => {
         setLoading(true);
-        services.clusterSettingsService
+        services.authService
             .settings()
-            .then(clusterSettings => pkceCallback(props.location.search, clusterSettings.oidcConfig, getPKCERedirectURI().toString()))
+            .then(authSettings => pkceCallback(props.location.search, authSettings.oidcConfig, getPKCERedirectURI().toString()))
             .catch(err => setError(err))
             .finally(() => {
                 setLoading(false);

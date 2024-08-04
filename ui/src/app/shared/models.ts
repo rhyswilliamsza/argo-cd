@@ -129,6 +129,8 @@ export interface ResourceResult {
 
 export const AnnotationRefreshKey = 'argocd.argoproj.io/refresh';
 export const AnnotationHookKey = 'argocd.argoproj.io/hook';
+export const AnnotationAppParentName = "argocd.argoproj.io/parent-application-name"
+export const AnnotationAppParentNamespace = "argocd.argoproj.io/parent-application-namespace"
 export const AnnotationSyncWaveKey = 'argocd.argoproj.io/sync-wave';
 export const AnnotationDefaultView = 'pref.argocd.argoproj.io/default-view';
 export const AnnotationDefaultPodSort = 'pref.argocd.argoproj.io/default-pod-sort';
@@ -456,9 +458,7 @@ export interface Plugin {
     name: string;
 }
 
-export interface ClusterSettings {
-    appLabelKey: string,
-    controllerNamespace: string,
+export interface AuthSettings {
     url: string;
     statusBadgeEnabled: boolean;
     statusBadgeRootUrl: string;
