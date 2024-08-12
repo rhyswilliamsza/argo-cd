@@ -1474,7 +1474,6 @@ func GenerateManifests(ctx context.Context, appPath, repoRoot, revision string, 
 					return nil, fmt.Errorf("failed to set app instance tracking info on manifest: %w", err)
 				}
 			}
-
 			manifestStr, err := json.Marshal(target.Object)
 			if err != nil {
 				return nil, err
