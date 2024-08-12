@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/argoproj/argo-cd/v2/pkg/apis/application"
-	argokube "github.com/argoproj/argo-cd/v2/util/kube"
 	goio "io"
 	"io/fs"
 	"net/url"
@@ -1470,19 +1468,11 @@ func GenerateManifests(ctx context.Context, appPath, repoRoot, revision string, 
 		}
 
 		for _, target := range targets {
-			// attach tracking info to each resource
 			if q.AppLabelKey != "" && q.AppName != "" && !kube.IsCRD(target) {
 				err = resourceTracking.SetAppInstance(target, q.AppLabelKey, q.AppName, q.Namespace, v1alpha1.TrackingMethod(q.TrackingMethod))
 				if err != nil {
 					return nil, fmt.Errorf("failed to set app instance tracking info on manifest: %w", err)
 				}
-			}
-
-			// attach parent info to application resources
-			groupVersionKind := target.GroupVersionKind()
-			if groupVersionKind.Group == application.Group && groupVersionKind.Kind == application.ApplicationKind {
-				argokube.SetAppInstanceAnnotation(target, common.AnnotationAppParentName, q.AppName)
-				argokube.SetAppInstanceAnnotation(target, common.AnnotationAppParentNamespace, q.Namespace)
 			}
 
 			manifestStr, err := json.Marshal(target.Object)

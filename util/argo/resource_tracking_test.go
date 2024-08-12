@@ -1,6 +1,9 @@
 package argo
 
 import (
+	"github.com/argoproj/argo-cd/v2/pkg/apis/application"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"os"
 	"testing"
 
@@ -230,4 +233,21 @@ func TestResourceIdNormalizer_Normalize_ConfigHasOldLabel(t *testing.T) {
 
 func TestIsOldTrackingMethod(t *testing.T) {
 	assert.True(t, IsOldTrackingMethod(string(TrackingMethodLabel)))
+}
+
+// Tests that argoproj.io/Application child resources are correctly annotated with the parent application details.
+func TestSetAppInstanceParentAnnotation(t *testing.T) {
+	// setup application unstructured
+	var obj unstructured.Unstructured
+	var gvk = v1.GroupVersionKind{
+		Group: application.Group,
+		Kind:  application.ApplicationKind,
+	}
+	obj.SetGroupVersionKind(schema.GroupVersionKind(gvk))
+
+	// ensure resource is correctly annotated
+	resourceTracking := NewResourceTracking()
+	err := resourceTracking.SetAppInstance(&obj, common.AnnotationKeyAppInstance, "my-app", "my-namespace", TrackingMethodAnnotation)
+	require.NoError(t, err)
+	assert.Equal(t, "my-namespace/my-app", obj.GetAnnotations()[common.AnnotationAppParent])
 }
